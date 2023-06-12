@@ -1,4 +1,4 @@
-provider "aws" {
+provider "awsutils" {
   region = var.region
 
   # Profile is deprecated in favor of terraform_role_arn. When profiles are not in use, terraform_profile_name is null.
@@ -11,9 +11,4 @@ provider "aws" {
       role_arn = module.iam_roles.terraform_role_arn
     }
   }
-}
-
-module "iam_roles" {
-  source  = "../account-map/modules/iam-roles"
-  context = module.this.context
 }
