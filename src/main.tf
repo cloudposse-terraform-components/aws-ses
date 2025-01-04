@@ -30,7 +30,7 @@ module "kms_key_ses" {
   description             = "KMS key for SES"
   deletion_window_in_days = 10
   enable_key_rotation     = true
-  policy                  = join("", data.aws_iam_policy_document.kms_key_ses.*.json)
+  policy                  = join("", data.aws_iam_policy_document.kms_key_ses[*].json)
 
   context = module.this.context
 }
