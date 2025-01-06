@@ -23,3 +23,4 @@ output "user_arn" {
   value       = module.ses.user_arn
   description = "The ARN the IAM user with permission to send emails from SES domain"
 }
+
