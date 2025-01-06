@@ -24,8 +24,3 @@ output "user_arn" {
   description = "The ARN the IAM user with permission to send emails from SES domain"
 }
 
-# Add a Hello World output for Terratest
-output "hello_world" {
-  value       = local.enabled ? "Hello, Terratest!" : null
-  description = "A simple Hello World output for Terratest validation."
-}
