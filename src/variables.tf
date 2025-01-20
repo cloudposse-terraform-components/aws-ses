@@ -27,8 +27,8 @@ variable "dns_delegated_environment_name" {
 }
 
 variable "ssm_prefix" {
-  type       = string
-  default    = "/ses"
-  sensitive  = false
+  type        = string
+  default     = "/ses"
+  sensitive   = false
   description = "The prefix to use for the SSM parameters"
 }
