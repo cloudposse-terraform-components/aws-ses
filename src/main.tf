@@ -48,28 +48,28 @@ module "ssm_parameter_store" {
   parameter_write = [
     {
       description = "SES AWS access key ID"
-      name        = "/ses/ses_access_key_id"
+      name        = format("%s/%s", var.ssm_prefix, "ses_access_key_id")
       overwrite   = true
       type        = "String"
       value       = module.ses.access_key_id
     },
     {
       description = "SES user IAM secret for usage with SES API"
-      name        = "/ses/ses_secret_access_key"
+      name        = format("%s/%s", var.ssm_prefix, "ses_secret_access_key")
       overwrite   = true
       type        = "SecureString"
       value       = module.ses.secret_access_key
     },
     {
       description = "SES IAM user name"
-      name        = "/ses/ses_user_name"
+      name        = format("%s/%s", var.ssm_prefix, "ses_user_name")
       overwrite   = true
       type        = "String"
       value       = module.ses.user_name
     },
     {
       description = "SES SMTP password"
-      name        = "/ses/ses_smtp_password"
+      name        = format("%s/%s", var.ssm_prefix, "ses_smtp_password")
       overwrite   = true
       type        = "SecureString"
       value       = module.ses.ses_smtp_password
