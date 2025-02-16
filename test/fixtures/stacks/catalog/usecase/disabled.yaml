@@ -1,10 +1,10 @@
 components:
   terraform:
-    ses/basic:
+    ses/disabled:
       metadata:
         component: target
       vars:
-        enabled: true
+        enabled: false
         name: ses
         ses_verify_domain: true
         ses_verify_dkim: true

@@ -3,3 +3,4 @@ import:
   - catalog/dns-primary
   - catalog/dns-delegated
   - catalog/usecase/basic
+  - catalog/usecase/disabled
