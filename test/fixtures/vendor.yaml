@@ -31,7 +31,7 @@ spec:
 
     - component: "dns-delegated"
       source: github.com/cloudposse-terraform-components/aws-dns-delegated.git//src?ref={{.Version}}
-      version: add-tests
+      version: v1.535.1
       targets:
         - "components/terraform/dns-delegated"
       included_paths:
