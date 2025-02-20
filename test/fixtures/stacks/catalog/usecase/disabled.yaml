@@ -1,0 +1,17 @@
+components:
+  terraform:
+    ses/disabled:
+      metadata:
+        component: target
+      vars:
+        enabled: false
+        name: ses
+        ses_verify_domain: true
+        ses_verify_dkim: true
+        dns_delegated_environment_name: ue2
+        # {environment}.{stage}.{tenant}.acme.org
+        domain_template: "%s[2]s.%[3]s.%[1]s.acme.org"
+        # use this when `account-map` is deployed in a separate `tenant`
+        tags:
+          Team: sre
+          Service: ses
