@@ -5,3 +5,4 @@ repository:
   description: This component is responsible for provisioning SES to act as an SMTP gateway
   homepage: https://cloudposse.com/accelerate
   topics: terraform, terraform-component
+
