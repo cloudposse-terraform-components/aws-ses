@@ -25,7 +25,7 @@ module "ses" {
 
 module "kms_key_ses" {
   source  = "cloudposse/kms-key/aws"
-  version = "0.12.1"
+  version = "0.12.2"
 
   description             = "KMS key for SES"
   deletion_window_in_days = 10
