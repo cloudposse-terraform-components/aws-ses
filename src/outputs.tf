@@ -24,3 +24,7 @@ output "user_arn" {
   description = "The ARN the IAM user with permission to send emails from SES domain"
 }
 
+output "domain" {
+  value       = local.ses_domain
+  description = "The SES domain name"
+}

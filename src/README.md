@@ -102,6 +102,7 @@ components:
 
 | Name | Description |
 |------|-------------|
+| <a name="output_domain"></a> [domain](#output\_domain) | The SES domain name |
 | <a name="output_smtp_password"></a> [smtp\_password](#output\_smtp\_password) | The SMTP password. This will be written to the state file in plain text. |
 | <a name="output_smtp_user"></a> [smtp\_user](#output\_smtp\_user) | Access key ID of the IAM user with permission to send emails from SES domain |
 | <a name="output_user_arn"></a> [user\_arn](#output\_user\_arn) | The ARN the IAM user with permission to send emails from SES domain |
