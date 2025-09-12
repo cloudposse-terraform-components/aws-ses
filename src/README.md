@@ -7,9 +7,7 @@ tags:
 
 # Component: `ses`
 
-This component is responsible for provisioning SES to act as an SMTP gateway. The credentials used for sending email can
-be retrieved from SSM.
-
+This component provisions Amazon Simple Email Service (SES) to act as an SMTP gateway. The credentials used for sending email can be retrieved from SSM.
 ## Usage
 
 **Stack Level**: Regional
@@ -35,7 +33,10 @@ components:
 ```
 
 <!-- prettier-ignore-start -->
-<!-- BEGINNING OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
+<!-- prettier-ignore-end -->
+
+
+<!-- markdownlint-disable -->
 ## Requirements
 
 | Name | Version |
@@ -108,12 +109,17 @@ components:
 | <a name="output_user_arn"></a> [user\_arn](#output\_user\_arn) | The ARN the IAM user with permission to send emails from SES domain |
 | <a name="output_user_name"></a> [user\_name](#output\_user\_name) | Normalized name of the IAM user with permission to send emails from SES domain |
 | <a name="output_user_unique_id"></a> [user\_unique\_id](#output\_user\_unique\_id) | The unique ID of the IAM user with permission to send emails from SES domain |
-<!-- END OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
-<!-- prettier-ignore-end -->
+<!-- markdownlint-restore -->
+
+
 
 ## References
 
-- [cloudposse/terraform-aws-components](https://github.com/cloudposse/terraform-aws-components/tree/main/modules/ses) -
-  Cloud Posse's upstream component
+
+- [cloudposse-terraform-components](https://github.com/orgs/cloudposse-terraform-components/repositories) - Cloud Posse's upstream component
+
+
+
 
 [<img src="https://cloudposse.com/logo-300x69.svg" height="32" align="right"/>](https://cpco.io/homepage?utm_source=github&utm_medium=readme&utm_campaign=cloudposse-terraform-components/aws-ses&utm_content=)
+
