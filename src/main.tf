@@ -20,6 +20,8 @@ module "ses" {
   verify_dkim   = var.ses_verify_dkim
   verify_domain = var.ses_verify_domain
 
+  ses_user_enabled = var.ses_user_enabled
+
   context = module.this.context
 }
 
@@ -39,7 +41,7 @@ module "ssm_parameter_store" {
   source  = "cloudposse/ssm-parameter-store/aws"
   version = "0.13.0"
 
-  count = local.enabled ? 1 : 0
+  count = local.enabled && var.ses_user_enabled ? 1 : 0
 
   # KMS key is only applied to SecureString params
   # https://github.com/cloudposse/terraform-aws-ssm-parameter-store/blob/master/main.tf#L17
