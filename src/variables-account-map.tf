@@ -1,6 +1,6 @@
 variable "account_map_enabled" {
   type        = bool
-  description = "INFO: Temporary variable required for account-map deprication plan. Please do not change the value"
+  description = "INFO: Temporary variable required for account-map deprecation plan. Please do not change the value"
   default     = true
 }
 
@@ -13,7 +13,7 @@ variable "account_map" {
     aws_partition                 = optional(string, "aws")
     iam_role_arn_templates        = optional(map(string), {})
   })
-  description = "INFO: Temporary variable required for account-map deprication plan. Please do not change the value"
+  description = "INFO: Temporary variable required for account-map deprecation plan. Please do not change the value"
   default = {
     full_account_map              = {}
     audit_account_account_name    = ""
