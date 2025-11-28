@@ -32,3 +32,9 @@ variable "ssm_prefix" {
   sensitive   = false
   description = "The prefix to use for the SSM parameters"
 }
+
+variable "ses_user_enabled" {
+  type        = bool
+  description = "Creates user with permission to send emails from SES domain"
+  default     = true
+}
