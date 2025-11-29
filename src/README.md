@@ -94,6 +94,7 @@ components:
 | <a name="input_namespace"></a> [namespace](#input\_namespace) | ID element. Usually an abbreviation of your organization name, e.g. 'eg' or 'cp', to help ensure generated IDs are globally unique | `string` | `null` | no |
 | <a name="input_regex_replace_chars"></a> [regex\_replace\_chars](#input\_regex\_replace\_chars) | Terraform regular expression (regex) string.<br/>Characters matching the regex will be removed from the ID elements.<br/>If not set, `"/[^a-zA-Z0-9-]/"` is used to remove all characters other than hyphens, letters and digits. | `string` | `null` | no |
 | <a name="input_region"></a> [region](#input\_region) | AWS Region | `string` | n/a | yes |
+| <a name="input_ses_user_enabled"></a> [ses\_user\_enabled](#input\_ses\_user\_enabled) | Creates user with permission to send emails from SES domain | `bool` | `true` | no |
 | <a name="input_ses_verify_dkim"></a> [ses\_verify\_dkim](#input\_ses\_verify\_dkim) | If provided the module will create Route53 DNS records used for DKIM verification. | `bool` | `true` | no |
 | <a name="input_ses_verify_domain"></a> [ses\_verify\_domain](#input\_ses\_verify\_domain) | If provided the module will create Route53 DNS records used for domain verification. | `bool` | `true` | no |
 | <a name="input_ssm_prefix"></a> [ssm\_prefix](#input\_ssm\_prefix) | The prefix to use for the SSM parameters | `string` | `"/ses"` | no |
