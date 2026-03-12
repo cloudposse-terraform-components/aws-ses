@@ -3,12 +3,16 @@ name: "aws-ses"
 github_repo: "cloudposse-terraform-components/aws-ses"
 # Short description of this project
 description: |-
-  This component provisions Amazon Simple Email Service (SES) to act as an SMTP gateway. The credentials used for sending email can be retrieved from SSM.
+  This component provisions Amazon Simple Email Service (SES) to act as an SMTP gateway.
+
+  By default, the component sets up SES domain identity with DKIM and domain verification via Route53, suitable for use with IAM roles (e.g., ECS task roles).
+
+  Optionally, an IAM user and group can be created for SMTP authentication by setting `ses_user_enabled` and `ses_group_enabled` to `true`. When enabled, credentials are stored in SSM Parameter Store and encrypted with a dedicated KMS key.
 # Usage examples and guidance
 usage: |-
   **Stack Level**: Regional
 
-  Here's an example snippet for how to use this component.
+  Here's an example snippet for how to use this component with IAM roles (the default, recommended for ECS/Lambda workloads):
 
   ```yaml
   components:
@@ -20,9 +24,27 @@ usage: |-
         vars:
           enabled: true
           name: ses
-          # {environment}.{stage}.{tenant}.acme.org
-          domain_template: "%s[2]s.%[3]s.%[1]s.acme.org"
-          # use this when `account-map` is deployed in a separate `tenant`
+          # format(domain_template, tenant, environment, stage)
+          # produces: dev.use1.platform.acme.org
+          domain_template: "%[2]s.%[3]s.%[1]s.acme.org"
+          tags:
+            Team: sre
+            Service: ses
+  ```
+
+  To create an IAM user with SMTP credentials stored in SSM Parameter Store (for legacy or third-party integrations):
+
+  ```yaml
+  components:
+    terraform:
+      ses:
+        vars:
+          enabled: true
+          name: ses
+          domain_template: "%[2]s.%[3]s.%[1]s.acme.org"
+          ses_user_enabled: true
+          ses_group_enabled: true
+          ssm_prefix: "/ses"
           tags:
             Team: sre
             Service: ses

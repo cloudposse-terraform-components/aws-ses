@@ -36,5 +36,11 @@ variable "ssm_prefix" {
 variable "ses_user_enabled" {
   type        = bool
   description = "Creates user with permission to send emails from SES domain"
-  default     = true
+  default     = false
+}
+
+variable "ses_group_enabled" {
+  type        = bool
+  description = "Creates a group with permission to send emails from SES domain"
+  default     = false
 }

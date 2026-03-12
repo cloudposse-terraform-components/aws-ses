@@ -7,12 +7,16 @@ tags:
 
 # Component: `ses`
 
-This component provisions Amazon Simple Email Service (SES) to act as an SMTP gateway. The credentials used for sending email can be retrieved from SSM.
+This component provisions Amazon Simple Email Service (SES) to act as an SMTP gateway.
+
+By default, the component sets up SES domain identity with DKIM and domain verification via Route53, suitable for use with IAM roles (e.g., ECS task roles).
+
+Optionally, an IAM user and group can be created for SMTP authentication by setting `ses_user_enabled` and `ses_group_enabled` to `true`. When enabled, credentials are stored in SSM Parameter Store and encrypted with a dedicated KMS key.
 ## Usage
 
 **Stack Level**: Regional
 
-Here's an example snippet for how to use this component.
+Here's an example snippet for how to use this component with IAM roles (the default, recommended for ECS/Lambda workloads):
 
 ```yaml
 components:
@@ -24,9 +28,27 @@ components:
       vars:
         enabled: true
         name: ses
-        # {environment}.{stage}.{tenant}.acme.org
-        domain_template: "%s[2]s.%[3]s.%[1]s.acme.org"
-        # use this when `account-map` is deployed in a separate `tenant`
+        # format(domain_template, tenant, environment, stage)
+        # produces: dev.use1.platform.acme.org
+        domain_template: "%[2]s.%[3]s.%[1]s.acme.org"
+        tags:
+          Team: sre
+          Service: ses
+```
+
+To create an IAM user with SMTP credentials stored in SSM Parameter Store (for legacy or third-party integrations):
+
+```yaml
+components:
+  terraform:
+    ses:
+      vars:
+        enabled: true
+        name: ses
+        domain_template: "%[2]s.%[3]s.%[1]s.acme.org"
+        ses_user_enabled: true
+        ses_group_enabled: true
+        ssm_prefix: "/ses"
         tags:
           Team: sre
           Service: ses
@@ -94,7 +116,8 @@ components:
 | <a name="input_namespace"></a> [namespace](#input\_namespace) | ID element. Usually an abbreviation of your organization name, e.g. 'eg' or 'cp', to help ensure generated IDs are globally unique | `string` | `null` | no |
 | <a name="input_regex_replace_chars"></a> [regex\_replace\_chars](#input\_regex\_replace\_chars) | Terraform regular expression (regex) string.<br/>Characters matching the regex will be removed from the ID elements.<br/>If not set, `"/[^a-zA-Z0-9-]/"` is used to remove all characters other than hyphens, letters and digits. | `string` | `null` | no |
 | <a name="input_region"></a> [region](#input\_region) | AWS Region | `string` | n/a | yes |
-| <a name="input_ses_user_enabled"></a> [ses\_user\_enabled](#input\_ses\_user\_enabled) | Creates user with permission to send emails from SES domain | `bool` | `true` | no |
+| <a name="input_ses_group_enabled"></a> [ses\_group\_enabled](#input\_ses\_group\_enabled) | Creates a group with permission to send emails from SES domain | `bool` | `false` | no |
+| <a name="input_ses_user_enabled"></a> [ses\_user\_enabled](#input\_ses\_user\_enabled) | Creates user with permission to send emails from SES domain | `bool` | `false` | no |
 | <a name="input_ses_verify_dkim"></a> [ses\_verify\_dkim](#input\_ses\_verify\_dkim) | If provided the module will create Route53 DNS records used for DKIM verification. | `bool` | `true` | no |
 | <a name="input_ses_verify_domain"></a> [ses\_verify\_domain](#input\_ses\_verify\_domain) | If provided the module will create Route53 DNS records used for domain verification. | `bool` | `true` | no |
 | <a name="input_ssm_prefix"></a> [ssm\_prefix](#input\_ssm\_prefix) | The prefix to use for the SSM parameters | `string` | `"/ses"` | no |
@@ -107,11 +130,12 @@ components:
 | Name | Description |
 |------|-------------|
 | <a name="output_domain"></a> [domain](#output\_domain) | The SES domain name |
-| <a name="output_smtp_password"></a> [smtp\_password](#output\_smtp\_password) | The SMTP password. This will be written to the state file in plain text. |
-| <a name="output_smtp_user"></a> [smtp\_user](#output\_smtp\_user) | Access key ID of the IAM user with permission to send emails from SES domain |
-| <a name="output_user_arn"></a> [user\_arn](#output\_user\_arn) | The ARN the IAM user with permission to send emails from SES domain |
-| <a name="output_user_name"></a> [user\_name](#output\_user\_name) | Normalized name of the IAM user with permission to send emails from SES domain |
-| <a name="output_user_unique_id"></a> [user\_unique\_id](#output\_user\_unique\_id) | The unique ID of the IAM user with permission to send emails from SES domain |
+| <a name="output_ses_domain_identity_arn"></a> [ses\_domain\_identity\_arn](#output\_ses\_domain\_identity\_arn) | The ARN of the SES domain identity |
+| <a name="output_smtp_password"></a> [smtp\_password](#output\_smtp\_password) | The SMTP password. Only available when `ses_user_enabled` is `true` |
+| <a name="output_smtp_user"></a> [smtp\_user](#output\_smtp\_user) | Access key ID of the IAM user. Only available when `ses_user_enabled` is `true` |
+| <a name="output_user_arn"></a> [user\_arn](#output\_user\_arn) | The ARN of the IAM user. Only available when `ses_user_enabled` is `true` |
+| <a name="output_user_name"></a> [user\_name](#output\_user\_name) | Normalized name of the IAM user. Only available when `ses_user_enabled` is `true` |
+| <a name="output_user_unique_id"></a> [user\_unique\_id](#output\_user\_unique\_id) | The unique ID of the IAM user. Only available when `ses_user_enabled` is `true` |
 <!-- markdownlint-restore -->
 
 
