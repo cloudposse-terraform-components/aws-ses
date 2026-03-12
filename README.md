@@ -94,6 +94,22 @@ components:
           Service: ses
 ```
 
+If you want to provide the Route53 zone ID directly instead of looking it up via the `dns-delegated` remote state:
+
+```yaml
+components:
+  terraform:
+    ses:
+      vars:
+        enabled: true
+        name: ses
+        domain_template: "%[2]s.%[3]s.%[1]s.acme.org"
+        zone_id: "Z1234567890"
+        tags:
+          Team: sre
+          Service: ses
+```
+
 <!-- prettier-ignore-start -->
 <!-- prettier-ignore-end -->
 
@@ -176,6 +192,7 @@ components:
 | <a name="input_stage"></a> [stage](#input\_stage) | ID element. Usually used to indicate role, e.g. 'prod', 'staging', 'source', 'build', 'test', 'deploy', 'release' | `string` | `null` | no |
 | <a name="input_tags"></a> [tags](#input\_tags) | Additional tags (e.g. `{'BusinessUnit': 'XYZ'}`).<br/>Neither the tag keys nor the tag values will be modified by this module. | `map(string)` | `{}` | no |
 | <a name="input_tenant"></a> [tenant](#input\_tenant) | ID element \_(Rarely used, not included by default)\_. A customer identifier, indicating who this instance of a resource is for | `string` | `null` | no |
+| <a name="input_zone_id"></a> [zone\_id](#input\_zone\_id) | Route53 hosted zone ID. If provided, bypasses the `dns-delegated` remote state lookup. | `string` | `null` | no |
 
 ## Outputs
 
@@ -183,7 +200,7 @@ components:
 |------|-------------|
 | <a name="output_domain"></a> [domain](#output\_domain) | The SES domain name |
 | <a name="output_ses_domain_identity_arn"></a> [ses\_domain\_identity\_arn](#output\_ses\_domain\_identity\_arn) | The ARN of the SES domain identity |
-| <a name="output_smtp_password"></a> [smtp\_password](#output\_smtp\_password) | The SMTP password. Only available when `ses_user_enabled` is `true` |
+| <a name="output_smtp_password"></a> [smtp\_password](#output\_smtp\_password) | The SMTP password. Only available when `ses_user_enabled` is `true`. This value is stored in Terraform state, so protect the state backend with encryption and access controls. |
 | <a name="output_smtp_user"></a> [smtp\_user](#output\_smtp\_user) | Access key ID of the IAM user. Only available when `ses_user_enabled` is `true` |
 | <a name="output_user_arn"></a> [user\_arn](#output\_user\_arn) | The ARN of the IAM user. Only available when `ses_user_enabled` is `true` |
 | <a name="output_user_name"></a> [user\_name](#output\_user\_name) | Normalized name of the IAM user. Only available when `ses_user_enabled` is `true` |

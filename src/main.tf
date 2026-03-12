@@ -1,7 +1,7 @@
 locals {
   enabled     = module.this.enabled
   ses_domain  = format(var.domain_template, var.tenant, var.environment, var.stage)
-  ses_zone_id = module.dns_gbl_delegated.outputs.default_dns_zone_id
+  ses_zone_id = coalesce(var.zone_id, module.dns_gbl_delegated.outputs.default_dns_zone_id)
 
   aws_partition = data.aws_partition.current.partition
   account_id    = data.aws_caller_identity.current.account_id

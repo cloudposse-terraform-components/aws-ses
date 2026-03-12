@@ -26,6 +26,12 @@ variable "dns_delegated_environment_name" {
   description = "`dns-delegated` component environment name"
 }
 
+variable "zone_id" {
+  type        = string
+  default     = null
+  description = "Route53 hosted zone ID. If provided, bypasses the `dns-delegated` remote state lookup."
+}
+
 variable "ssm_prefix" {
   type        = string
   default     = "/ses"

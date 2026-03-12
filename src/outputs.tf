@@ -11,7 +11,7 @@ output "domain" {
 output "smtp_password" {
   sensitive   = true
   value       = module.ses.ses_smtp_password
-  description = "The SMTP password. Only available when `ses_user_enabled` is `true`"
+  description = "The SMTP password. Only available when `ses_user_enabled` is `true`. This value is stored in Terraform state, so protect the state backend with encryption and access controls."
 }
 
 output "smtp_user" {

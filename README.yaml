@@ -50,6 +50,22 @@ usage: |-
             Service: ses
   ```
 
+  If you want to provide the Route53 zone ID directly instead of looking it up via the `dns-delegated` remote state:
+
+  ```yaml
+  components:
+    terraform:
+      ses:
+        vars:
+          enabled: true
+          name: ses
+          domain_template: "%[2]s.%[3]s.%[1]s.acme.org"
+          zone_id: "Z1234567890"
+          tags:
+            Team: sre
+            Service: ses
+  ```
+
   <!-- prettier-ignore-start -->
   <!-- prettier-ignore-end -->
 # External references

@@ -27,11 +27,13 @@ func (s *ComponentSuite) TestBasic() {
 
 	dnsDelegatedOptions := s.GetAtmosOptions("dns-delegated", stack, nil)
 	domain := atmos.Output(s.T(), dnsDelegatedOptions, "default_domain_name")
+	zoneId := atmos.Output(s.T(), dnsDelegatedOptions, "default_dns_zone_id")
 
 	hostnamePrefix := strings.ToLower(random.UniqueId())
 	inputs := map[string]interface{}{
 		"domain_template": hostnamePrefix + "-%[3]v.%[2]v.%[1]v." + domain,
 		"ssm_prefix":      fmt.Sprintf("/ses/%s", hostnamePrefix),
+		"zone_id":         zoneId,
 	}
 	defer s.DestroyAtmosComponent(s.T(), component, stack, &inputs)
 	options, _ := s.DeployAtmosComponent(s.T(), component, stack, &inputs)
@@ -91,11 +93,13 @@ func (s *ComponentSuite) TestEnabledFlag() {
 
 	dnsDelegatedOptions := s.GetAtmosOptions("dns-delegated", stack, nil)
 	domain := atmos.Output(s.T(), dnsDelegatedOptions, "default_domain_name")
+	zoneId := atmos.Output(s.T(), dnsDelegatedOptions, "default_dns_zone_id")
 
 	hostnamePrefix := strings.ToLower(random.UniqueId())
 	inputs := map[string]interface{}{
 		"domain_template": hostnamePrefix + "-%[3]v.%[2]v.%[1]v." + domain,
 		"ssm_prefix":      fmt.Sprintf("/ses/%s", hostnamePrefix),
+		"zone_id":         zoneId,
 	}
 
 	s.VerifyEnabledFlag(component, stack, &inputs)

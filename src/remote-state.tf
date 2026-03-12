@@ -9,5 +9,12 @@ module "dns_gbl_delegated" {
   component   = "dns-delegated"
   environment = coalesce(var.dns_delegated_environment_name, local.dns_delegated_environment_name)
 
+  bypass        = !local.enabled || var.zone_id != null
+  ignore_errors = !local.enabled
+
+  defaults = {
+    default_dns_zone_id = ""
+  }
+
   context = module.this.context
 }
