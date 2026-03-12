@@ -20,6 +20,27 @@ type ComponentSuite struct {
 	helper.TestSuite
 }
 
+func (s *ComponentSuite) waitForIdentityVerification(identityDomain string, awsRegion string) string {
+	client := awshelper.NewSESV2Client(s.T(), awsRegion)
+
+	var identityState string
+	var attempt int
+	for strings.ToLower(identityState) != "success" && attempt <= 60 {
+		identities, err := client.GetEmailIdentity(context.Background(), &sesv2.GetEmailIdentityInput{
+			EmailIdentity: &identityDomain,
+		})
+		if !assert.NoError(s.T(), err) {
+			break
+		}
+
+		identityState = string(identities.VerificationStatus)
+		time.Sleep(2 * time.Second)
+		attempt++
+	}
+	assert.Equal(s.T(), "SUCCESS", identityState)
+	return identityState
+}
+
 func (s *ComponentSuite) TestBasic() {
 	const component = "ses/basic"
 	const stack = "default-test"
@@ -27,11 +48,13 @@ func (s *ComponentSuite) TestBasic() {
 
 	dnsDelegatedOptions := s.GetAtmosOptions("dns-delegated", stack, nil)
 	domain := atmos.Output(s.T(), dnsDelegatedOptions, "default_domain_name")
+	zoneId := atmos.Output(s.T(), dnsDelegatedOptions, "default_dns_zone_id")
 
 	hostnamePrefix := strings.ToLower(random.UniqueId())
 	inputs := map[string]interface{}{
 		"domain_template": hostnamePrefix + "-%[3]v.%[2]v.%[1]v." + domain,
 		"ssm_prefix":      fmt.Sprintf("/ses/%s", hostnamePrefix),
+		"zone_id":         zoneId,
 	}
 	defer s.DestroyAtmosComponent(s.T(), component, stack, &inputs)
 	options, _ := s.DeployAtmosComponent(s.T(), component, stack, &inputs)
@@ -49,24 +72,12 @@ func (s *ComponentSuite) TestBasic() {
 	userArn := atmos.Output(s.T(), options, "user_arn")
 	assert.NotEmpty(s.T(), userArn)
 
-	randomContentMessage := strings.ToLower(random.UniqueId())
 	identityDomain := fmt.Sprintf("%s-test.ue2.default.%s", hostnamePrefix, domain)
+	s.waitForIdentityVerification(identityDomain, awsRegion)
+
+	randomContentMessage := strings.ToLower(random.UniqueId())
 	senderEmail := fmt.Sprintf("test@%s", identityDomain)
 	client := awshelper.NewSESV2Client(s.T(), awsRegion)
-
-	var identityState string
-	var attempt int
-	for strings.ToLower(identityState) != "success" && attempt <= 60 {
-		identities, err := client.GetEmailIdentity(context.Background(), &sesv2.GetEmailIdentityInput{
-			EmailIdentity: &identityDomain,
-		})
-		assert.NoError(s.T(), err)
-
-		identityState = string(identities.VerificationStatus)
-		time.Sleep(2 * time.Second)
-		attempt++
-	}
-	assert.Equal(s.T(), "SUCCESS", identityState)
 
 	_, err := client.SendEmail(context.Background(), &sesv2.SendEmailInput{
 		Content: &types.EmailContent{
@@ -84,6 +95,42 @@ func (s *ComponentSuite) TestBasic() {
 	s.DriftTest(component, stack, &inputs)
 }
 
+func (s *ComponentSuite) TestDefault() {
+	const component = "ses/default"
+	const stack = "default-test"
+	const awsRegion = "us-east-2"
+
+	dnsDelegatedOptions := s.GetAtmosOptions("dns-delegated", stack, nil)
+	domain := atmos.Output(s.T(), dnsDelegatedOptions, "default_domain_name")
+	zoneId := atmos.Output(s.T(), dnsDelegatedOptions, "default_dns_zone_id")
+
+	hostnamePrefix := strings.ToLower(random.UniqueId())
+	inputs := map[string]interface{}{
+		"domain_template": hostnamePrefix + "-%[3]v.%[2]v.%[1]v." + domain,
+		"zone_id":         zoneId,
+	}
+	defer s.DestroyAtmosComponent(s.T(), component, stack, &inputs)
+	options, _ := s.DeployAtmosComponent(s.T(), component, stack, &inputs)
+	assert.NotNil(s.T(), options)
+
+	sesDomain := atmos.Output(s.T(), options, "domain")
+	assert.NotEmpty(s.T(), sesDomain)
+
+	sesDomainIdentityArn := atmos.Output(s.T(), options, "ses_domain_identity_arn")
+	assert.NotEmpty(s.T(), sesDomainIdentityArn)
+
+	smtpUser := atmos.Output(s.T(), options, "smtp_user")
+	assert.Empty(s.T(), smtpUser)
+
+	userArn := atmos.Output(s.T(), options, "user_arn")
+	assert.Empty(s.T(), userArn)
+
+	identityDomain := fmt.Sprintf("%s-test.ue2.default.%s", hostnamePrefix, domain)
+	s.waitForIdentityVerification(identityDomain, awsRegion)
+
+	s.DriftTest(component, stack, &inputs)
+}
+
 func (s *ComponentSuite) TestEnabledFlag() {
 	const component = "ses/disabled"
 	const stack = "default-test"
@@ -91,16 +138,17 @@ func (s *ComponentSuite) TestEnabledFlag() {
 
 	dnsDelegatedOptions := s.GetAtmosOptions("dns-delegated", stack, nil)
 	domain := atmos.Output(s.T(), dnsDelegatedOptions, "default_domain_name")
+	zoneId := atmos.Output(s.T(), dnsDelegatedOptions, "default_dns_zone_id")
 
 	hostnamePrefix := strings.ToLower(random.UniqueId())
 	inputs := map[string]interface{}{
 		"domain_template": hostnamePrefix + "-%[3]v.%[2]v.%[1]v." + domain,
 		"ssm_prefix":      fmt.Sprintf("/ses/%s", hostnamePrefix),
+		"zone_id":         zoneId,
 	}
 
 	s.VerifyEnabledFlag(component, stack, &inputs)
 }
-
 
 func TestRunSuite(t *testing.T) {
 	suite := new(ComponentSuite)

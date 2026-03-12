@@ -26,6 +26,12 @@ variable "dns_delegated_environment_name" {
   description = "`dns-delegated` component environment name"
 }
 
+variable "zone_id" {
+  type        = string
+  default     = null
+  description = "Route53 hosted zone ID. If provided, bypasses the `dns-delegated` remote state lookup."
+}
+
 variable "ssm_prefix" {
   type        = string
   default     = "/ses"
@@ -36,5 +42,11 @@ variable "ssm_prefix" {
 variable "ses_user_enabled" {
   type        = bool
   description = "Creates user with permission to send emails from SES domain"
-  default     = true
+  default     = false
+}
+
+variable "ses_group_enabled" {
+  type        = bool
+  description = "Creates a group with permission to send emails from SES domain"
+  default     = false
 }

@@ -1,7 +1,7 @@
 locals {
   enabled     = module.this.enabled
   ses_domain  = format(var.domain_template, var.tenant, var.environment, var.stage)
-  ses_zone_id = module.dns_gbl_delegated.outputs.default_dns_zone_id
+  ses_zone_id = coalesce(var.zone_id, module.dns_gbl_delegated.outputs.default_dns_zone_id)
 
   aws_partition = data.aws_partition.current.partition
   account_id    = data.aws_caller_identity.current.account_id
@@ -20,7 +20,8 @@ module "ses" {
   verify_dkim   = var.ses_verify_dkim
   verify_domain = var.ses_verify_domain
 
-  ses_user_enabled = var.ses_user_enabled
+  ses_user_enabled  = var.ses_user_enabled
+  ses_group_enabled = var.ses_group_enabled
 
   context = module.this.context
 }
@@ -28,6 +29,8 @@ module "ses" {
 module "kms_key_ses" {
   source  = "cloudposse/kms-key/aws"
   version = "0.12.2"
+
+  enabled = local.enabled && var.ses_user_enabled
 
   description             = "KMS key for SES"
   deletion_window_in_days = 10
@@ -84,7 +87,7 @@ module "ssm_parameter_store" {
 data "aws_iam_policy_document" "kms_key_ses" {
   #bridgecrew:skip=BC_AWS_IAM_57: Skipping `Write access allowed without constraint` check. This is a resource-based policy allowing the account to use the CMK.
   #bridgecrew:skip=BC_AWS_IAM_56: Skipping `Resource exposure allows modification of policies and exposes resources` check. See note above.
-  count = local.enabled ? 1 : 0
+  count = local.enabled && var.ses_user_enabled ? 1 : 0
 
   # https://docs.aws.amazon.com/kms/latest/developerguide/key-policies.html#key-policy-default-allow-administrators
   # https://aws.amazon.com/premiumsupport/knowledge-center/update-key-policy-future/
