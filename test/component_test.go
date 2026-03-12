@@ -86,6 +86,56 @@ func (s *ComponentSuite) TestBasic() {
 	s.DriftTest(component, stack, &inputs)
 }
 
+func (s *ComponentSuite) TestDefault() {
+	const component = "ses/default"
+	const stack = "default-test"
+	const awsRegion = "us-east-2"
+
+	dnsDelegatedOptions := s.GetAtmosOptions("dns-delegated", stack, nil)
+	domain := atmos.Output(s.T(), dnsDelegatedOptions, "default_domain_name")
+	zoneId := atmos.Output(s.T(), dnsDelegatedOptions, "default_dns_zone_id")
+
+	hostnamePrefix := strings.ToLower(random.UniqueId())
+	inputs := map[string]interface{}{
+		"domain_template": hostnamePrefix + "-%[3]v.%[2]v.%[1]v." + domain,
+		"zone_id":         zoneId,
+	}
+	defer s.DestroyAtmosComponent(s.T(), component, stack, &inputs)
+	options, _ := s.DeployAtmosComponent(s.T(), component, stack, &inputs)
+	assert.NotNil(s.T(), options)
+
+	sesDomain := atmos.Output(s.T(), options, "domain")
+	assert.NotEmpty(s.T(), sesDomain)
+
+	sesDomainIdentityArn := atmos.Output(s.T(), options, "ses_domain_identity_arn")
+	assert.NotEmpty(s.T(), sesDomainIdentityArn)
+
+	smtpUser := atmos.Output(s.T(), options, "smtp_user")
+	assert.Empty(s.T(), smtpUser)
+
+	userArn := atmos.Output(s.T(), options, "user_arn")
+	assert.Empty(s.T(), userArn)
+
+	identityDomain := fmt.Sprintf("%s-test.ue2.default.%s", hostnamePrefix, domain)
+	client := awshelper.NewSESV2Client(s.T(), awsRegion)
+
+	var identityState string
+	var attempt int
+	for strings.ToLower(identityState) != "success" && attempt <= 60 {
+		identities, err := client.GetEmailIdentity(context.Background(), &sesv2.GetEmailIdentityInput{
+			EmailIdentity: &identityDomain,
+		})
+		assert.NoError(s.T(), err)
+
+		identityState = string(identities.VerificationStatus)
+		time.Sleep(2 * time.Second)
+		attempt++
+	}
+	assert.Equal(s.T(), "SUCCESS", identityState)
+
+	s.DriftTest(component, stack, &inputs)
+}
+
 func (s *ComponentSuite) TestEnabledFlag() {
 	const component = "ses/disabled"
 	const stack = "default-test"

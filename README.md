@@ -56,6 +56,12 @@ Optionally, an IAM user and group can be created for SMTP authentication by sett
 
 **Stack Level**: Regional
 
+> [!IMPORTANT]
+> This release changes the default of `ses_user_enabled` from `true` to `false`.
+> Existing stacks that still need SMTP credentials must set `ses_user_enabled: true`
+> (and `ses_group_enabled: true` if they need the IAM group) before applying this version,
+> or Terraform will destroy the IAM/KMS/SSM resources created by earlier releases.
+
 Here's an example snippet for how to use this component with IAM roles (the default, recommended for ECS/Lambda workloads):
 
 ```yaml
