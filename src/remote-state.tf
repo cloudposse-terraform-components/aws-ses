@@ -4,7 +4,7 @@ locals {
 
 module "dns_gbl_delegated" {
   source  = "cloudposse/stack-config/yaml//modules/remote-state"
-  version = "1.8.0"
+  version = "2.0.0"
 
   component   = "dns-delegated"
   environment = coalesce(var.dns_delegated_environment_name, local.dns_delegated_environment_name)
