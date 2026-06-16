@@ -13,7 +13,7 @@ data "aws_partition" "current" {}
 
 module "ses" {
   source  = "cloudposse/ses/aws"
-  version = "0.25.1"
+  version = "0.25.2"
 
   domain        = local.ses_domain
   zone_id       = local.ses_zone_id
